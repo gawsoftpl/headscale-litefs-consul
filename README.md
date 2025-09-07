@@ -19,24 +19,26 @@ sleep 20
 ```
 
 ### Run small demo with auto failover
+This commands emulate failover of primary and auto switch to another node by consule leader election:
+
 ```bash
 echo "Run status report"
 scripts/status.sh
 
-echo "Get actual leader"
+# Get actual ledaers
 leader_name=`scripts/leader.sh`
 echo "Actual leader: $leader_name"
 
-echo "Create users in actual leader headscale"
+# Create users
 docker-compose exec $leader_name headscale users create test test2
 
-echo "List users from actual leader headscal"
+# List headscale users
 docker-compose exec $leader_name headscale users list
 
 echo "Emulate failover of primary"
 scripts/failover-test.sh
 
-echo "Get actual leader"
+# Get new leader
 leader_name=`scripts/leader.sh`
 echo "Actual leader: $leader_name"
 
