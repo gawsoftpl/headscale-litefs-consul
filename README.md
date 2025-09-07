@@ -1,6 +1,14 @@
 # About
 This small tutorial show how to deploy a [Headscale](https://github.com/juanfont/headscale) and setup sqlite auto replica with [`LiteFS`](https://github.com/superfly/ with autofailover by LiteFs and consul leader election.
 
+## Conspect
+Achieving High Availability for Headscale with SQLite Using Consul and Auto Failover
+
+Headscale, the open-source self-hosted alternative to Tailscale, is designed to be simple, lightweight, and primarily uses SQLite as its database. While Headscale does not natively support high availability (HA) setups or multiple active servers, there are ways to ensure resilience in production environments. In this article, I will explain why I chose a particular architecture using SQLite, Consul, and automatic failover, and why alternatives like PostgreSQL were not suitable.
+
+
+##
+
 # Features
 - Primary, replica mode for headscale
 - Headscale cannot run with read only mode. Headscale have to have access for write in sqlite. This stack detect when node is leader and do not start headscale. Headscale only start when node is primary.
@@ -9,7 +17,7 @@ This small tutorial show how to deploy a [Headscale](https://github.com/juanfont
 
 # Demo
 
-### Downlaod docker containers and start stack
+### Download docker containers and start stack
 ```bash
 #Execute stack
 docker-compose up -d 
@@ -19,7 +27,7 @@ sleep 20
 ```
 
 ### Run small demo with auto failover
-This commands emulate failover of primary and auto switch to another node by consule leader election:
+Those commands emulate failover of primary and auto switch to another node by consule leader election:
 
 ```bash
 echo "Run status report"
