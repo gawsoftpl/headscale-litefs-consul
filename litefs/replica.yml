@@ -1,0 +1,39 @@
+# LiteFS configuration for replica node
+fuse:
+  dir: "/var/lib/headscale/litefs"
+
+data:
+  dir: "/var/lib/headscale/data"
+
+http:
+  # Specifies the bind address of the HTTP API server.
+  addr: ":20202"
+  
+# proxy:
+#   addr: ":grpc_listen_addr"
+#   target: "headscale-primary:grpc_listen_addr"
+#   db: "db.sqlite3"
+#   debug: true
+
+lease:
+  type: "consul"
+  advertise-url: "http://headscale-replica:20202"
+  candidate: true
+
+  consul:
+    url: "http://consul:8500"
+    key: "litefs/primary"
+
+# exit-on-error: false
+
+# skip-sync: true
+
+# Do not execute headscale, keepalived will start server
+exec: "/usr/local/bin/exec-headscale.sh"
+
+tracing:
+  # Toggles tracing if 'path' is also set. Defaults to true.
+  enabled: false
+
+  # Output path on disk.
+  path: "/dev/stdout"

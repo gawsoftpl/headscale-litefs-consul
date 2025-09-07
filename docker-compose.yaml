@@ -1,0 +1,112 @@
+version: '3.8'
+
+services:
+
+  # Consul Server for leader election
+  consul:
+    image: consul:1.15
+    container_name: consul-server
+    restart: unless-stopped
+    command: >
+      consul agent 
+      -server 
+      -bootstrap-expect=1 
+      -datacenter=dc1 
+      -data-dir=/consul/data 
+      -config-dir=/consul/config 
+      -ui 
+      -bind=0.0.0.0 
+      -client=0.0.0.0 
+      -log-level=INFO
+    volumes:
+      - ./data/consul:/consul/data
+      - ./consul/config:/consul/config
+      - ./scripts:/scripts
+
+    ports:
+      - "8500:8500"     # Consul UI
+      - "8600:8600/udp" # Consul DNS
+    environment:
+      - CONSUL_BIND_INTERFACE=eth0
+    networks:
+      - headscale-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8500/v1/status/leader"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+
+  # Primary Headscale Node with LiteFS
+  headscale-primary:
+    build:
+      context: ./litefs
+      dockerfile: Dockerfile
+    container_name: headscale-primary
+    restart: unless-stopped
+    volumes:
+      - ./headscale/config.yaml:/etc/headscale/config.yaml
+      - ./data/primary:/var/lib/headscale
+      - ./litefs/primary.yml:/etc/litefs.yml
+      - ./litefs/exec-headscale.sh:/usr/local/bin/exec-headscale.sh
+    privileged: true
+    devices:
+      - /dev/fuse
+    cap_add:
+      - SYS_ADMIN
+
+    ports:
+      - "8010:8081"
+      - "8020:8080"
+      - "50443:50443"
+      - "9090:9090"
+      - "20202:20202"
+    networks:
+      - headscale-net
+
+  # Replica Headscale Node with LiteFS
+  headscale-replica:
+    build:
+      context: ./litefs
+      dockerfile: Dockerfile
+    container_name: headscale-replica
+    restart: unless-stopped
+    depends_on:
+      - headscale-primary
+    volumes:
+      - ./headscale/config.yaml:/etc/headscale/config.yaml
+      - ./data/replica:/var/lib/headscale
+      - ./litefs/replica.yml:/etc/litefs.yml
+      - ./litefs/exec-headscale.sh:/usr/local/bin/exec-headscale.sh
+    privileged: true
+    devices:
+      - /dev/fuse
+    cap_add:
+      - SYS_ADMIN
+
+    ports:
+      - "8011:8081"
+      - "8021:8080"
+      - "20203:20202"
+    networks:
+      - headscale-net
+
+  # Nginx Load Balancer
+  nginx:
+    image: nginx:alpine
+    container_name: headscale-lb
+    restart: unless-stopped
+    depends_on:
+      - headscale-primary
+      - headscale-replica
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - "8080:80"
+      - "8443:443"
+    networks:
+      - headscale-net
+
+networks:
+  headscale-net:
+    driver: bridge
