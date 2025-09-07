@@ -1,0 +1,1 @@
+# headscale-litefs-consul
