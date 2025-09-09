@@ -2,23 +2,18 @@ services:
 
   # Consul Server for leader election
   consul:
-    image: consul:1.15
+    image: hashicorp/consul:1.21.4
     container_name: consul-server
     restart: unless-stopped
     command: >
       consul agent 
       -server 
-      -bootstrap-expect=1 
-      -datacenter=dc1 
       -data-dir=/consul/data 
-      -config-dir=/consul/config 
-      -ui 
-      -bind=0.0.0.0 
-      -client=0.0.0.0 
+      -config-file=/consul/config/consul.hcl
       -log-level=INFO
     volumes:
       - ./data/consul:/consul/data
-      - ./consul/config:/consul/config
+      - ./consul/consul.hcl:/consul/config/consul.hcl
       - ./scripts:/scripts
 
     ports:
