@@ -2,7 +2,7 @@
 This small tutorial show how to deploy a [Headscale](https://github.com/juanfont/headscale) and setup sqlite auto replica with [`LiteFS`](https://github.com/superfly/ with autofailover by LiteFs and consul leader election.
 
 # Tutorial
-Tutorial link: [https://github.com/gawsoftpl/headscale-litefs-consul](https://github.com/gawsoftpl/headscale-litefs-consul)
+Tutorial link: [https://gawsoft.com/blog/headscale-litefs-consul-replication-failover/](https://gawsoft.com/blog/headscale-litefs-consul-replication-failover/)
 
 ## Conspect
 Achieving High Availability for Headscale with SQLite Using Consul and Auto Failover
